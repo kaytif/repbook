@@ -6,7 +6,7 @@ import (
 	"net/http"
 )
 
-func readExercises(w http.ResponseWriter, r *http.Request) {
+func readExercise(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query(
 		`SELECT exercises.id, 
