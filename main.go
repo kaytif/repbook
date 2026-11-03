@@ -1,25 +1,26 @@
 package main
 
 import (
-	"log"
-	"net/http"
-	"os"
+    "log"
+    "net/http"
+    "os"
 )
 
 func main() {
-	// Connect to PostgreSQL
-	connectDB()
+    connectDB()
 
-	// Use port 8080 if PORT is not configured
-	port := os.Getenv("PORT")
-	if port == "" {
-		port = "8080"
-	}
+    port := os.Getenv("PORT")
+    if port == "" {
+        port = "8080"
+    }
 
-	// Register workout endpoint
-	http.Handle("/workouts", http.HandlerFunc(handlerWorkout))
+    http.HandleFunc("/workouts", handlerWorkout)
+    http.HandleFunc("/exercises", handlerExercise)
+    http.HandleFunc("/programs", handlerProgram)
+    http.HandleFunc("/workout-exercises", handlerWorkoutExercise)
+    http.HandleFunc("/program-exercises", handlerProgramExercise)
+    http.HandleFunc("/exercise-sets", handlerExerciseSet)
 
-	// Start HTTP server
-	log.Println("Server running on port", port)
-	log.Fatal(http.ListenAndServe(":"+port, nil))
+    log.Println("Server running on port", port)
+    log.Fatal(http.ListenAndServe(":"+port, nil))
 }
