@@ -57,7 +57,6 @@ func setupTestDB(t *testing.T) {
 	})
 }
 
-
 func TestCreateWorkout_DatabaseFailure(t *testing.T) {
 	originalDB := db
 
@@ -94,4 +93,3 @@ func TestCreateWorkout_DatabaseFailure(t *testing.T) {
 		)
 	}
 }
-

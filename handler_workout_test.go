@@ -77,5 +77,3 @@ func TestUpdateWorkout_Validation(t *testing.T) {
 		})
 	}
 }
-
-

@@ -34,7 +34,7 @@ func handlerExercise(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		readExercise(w, r)
-			
+
 	case http.MethodPost:
 		createExercise(w, r)
 
