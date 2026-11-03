@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func readWorkouts(w http.ResponseWriter, r *http.Request) {
+func readWorkout(w http.ResponseWriter, r *http.Request) {
 
 	rows, err := db.Query(`
 		SELECT w.id, w.name, w.date, p.name

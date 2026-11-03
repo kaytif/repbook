@@ -4,10 +4,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/jackc/pgx/v5/pgconn"
 	"log"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func createExerciseSet(w http.ResponseWriter, r *http.Request) {
