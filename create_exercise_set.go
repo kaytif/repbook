@@ -80,7 +80,7 @@ func createExerciseSet(w http.ResponseWriter, r *http.Request) {
 		workout_exercise_id,
 		set_number,
 		reps,
-		weight_kg
+		weight
 	)
 	SELECT 
 	$1,

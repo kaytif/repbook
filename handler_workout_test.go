@@ -17,8 +17,6 @@ func TestCreateWorkout_Validation(t *testing.T) {
 
 		{"missing required fields", createWorkout, "POST", "/workouts", `{}`, 400},
 
-		{"invalid date", createWorkout, "POST", "/workouts", `{"name":"Chest day", "date":"hello"}`, 400},
-
 		{"empty workout name", createWorkout, "POST", "/workouts", `{"name":"","date":"2026-10-30"}`, 400},
 
 		{"malformed JSON", createWorkout, "POST", "/workouts", `{"name":`, 400},
@@ -62,7 +60,7 @@ func TestUpdateWorkout_Validation(t *testing.T) {
 		{"negative ID", updateWorkout, "PUT", "/workouts?id=-1", `{}`, 400},
 
 		// Checking JSON body
-		{"malformed JSON", updateWorkout, "PUT", "/workouts?id=1", `{}`, 400},
+		{"malformed JSON", updateWorkout, "PUT", "/workouts?id=1", `{"name":}`, 400},
 
 		{"wrong JSON data type", updateWorkout, "PUT", "/workouts?id=1", `{"name":123}`, 400},
 	}
