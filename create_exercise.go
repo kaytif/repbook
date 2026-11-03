@@ -2,18 +2,20 @@ package main
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
 	"strings"
 
 	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func createExercise(w http.ResponseWriter, r *http.Request) {
 
 	// Create Exercise var to store incoming exercise in
 	var exercise Exercise
-	
+
 	// first we need to decode the exercise
 	err := json.NewDecoder(r.Body).Decode(&exercise)
 
@@ -25,9 +27,8 @@ func createExercise(w http.ResponseWriter, r *http.Request) {
 
 	exercise.Name = strings.TrimSpace(exercise.Name)
 
-
 	// ------ name validation --------------
-	
+
 	// 1. validate that name is not empty
 	err = validation.Validate(
 		exercise.Name,
@@ -49,7 +50,7 @@ func createExercise(w http.ResponseWriter, r *http.Request) {
 	).Scan(&exercise.ID)
 
 	// id validation not needed since postgresql generates it for us.
-		if err != nil {
+	if err != nil {
 
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgErr.Code == "23505" {
@@ -60,9 +61,9 @@ func createExercise(w http.ResponseWriter, r *http.Request) {
 		writeJSONError(w, "Internal Server Error", http.StatusInternalServerError)
 		return
 
+	}
 
-
-	// set the header 
+	// set the header
 	w.Header().Set("content-Type", "application/json")
 
 	// Workout successfully created
@@ -70,6 +71,5 @@ func createExercise(w http.ResponseWriter, r *http.Request) {
 
 	// Send created workout back as JSON
 	json.NewEncoder(w).Encode(exercise)
-	}
 
-	
+}

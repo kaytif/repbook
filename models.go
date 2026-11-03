@@ -36,7 +36,7 @@ type ProgramExercise struct {
 	ExerciseID int `json:"exercise_id"`
 }
 
-type WorkoutExer=ciseResponse struct {
+type WorkoutExerciseResponse struct {
 	ID         int           `json:"id"`
 	ExerciseID int           `json:"exercise_id"`
 	Name       string        `json:"name"`
