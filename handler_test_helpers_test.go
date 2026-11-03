@@ -57,3 +57,41 @@ func setupTestDB(t *testing.T) {
 	})
 }
 
+
+func TestCreateWorkout_DatabaseFailure(t *testing.T) {
+	originalDB := db
+
+	failedDB, err := sql.Open(
+		"pgx",
+		"postgres://workout:invalid@127.0.0.1:1/nonexistent?sslmode=disable&connect_timeout=1",
+	)
+	if err != nil {
+		t.Fatalf("failed to create database handle: %v", err)
+	}
+
+	db = failedDB
+
+	t.Cleanup(func() {
+		db = originalDB
+		failedDB.Close()
+	})
+
+	body := `{"name":"Chest Day","date":"2026-10-30"}`
+
+	recorder := executeRequest(
+		t,
+		createWorkout,
+		http.MethodPost,
+		"/workouts",
+		body,
+	)
+
+	if recorder.Code != http.StatusInternalServerError {
+		t.Errorf(
+			"expected status 500, got %d; response: %s",
+			recorder.Code,
+			recorder.Body.String(),
+		)
+	}
+}
+
