@@ -91,7 +91,7 @@ func createProgramExercise(w http.ResponseWriter, r *http.Request) {
 			writeJSONError(
 				w,
 				"Program or exercise not found",
-					http.StatusNotFound,
+				http.StatusNotFound,
 			)
 			return
 		}

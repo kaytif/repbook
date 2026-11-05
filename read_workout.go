@@ -24,7 +24,7 @@ func readWorkout(w http.ResponseWriter, r *http.Request) {
 		WHERE w.deleted_at IS NULL
 		AND w.user_id = $1
 		ORDER BY w.date DESC, w.id DESC`,
-	userID)
+		userID)
 
 	if err != nil {
 		log.Printf("Failed to fetch workouts: %v", err)

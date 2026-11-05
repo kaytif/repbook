@@ -14,7 +14,6 @@ func readProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-
 	rows, err := db.Query(
 		`SELECT programs.id, 
 				programs.name

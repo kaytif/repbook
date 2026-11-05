@@ -83,7 +83,7 @@ type Login struct {
 
 type Session struct {
 	UserID    int       `json:"user_id"`
-	TokenHash     string    `json:"token"`
+	TokenHash string    `json:"token"`
 	ExpiresAt time.Time `json:"expires_at"`
 	CreatedAt time.Time `json:"created_at"`
 }
