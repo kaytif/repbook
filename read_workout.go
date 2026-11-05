@@ -9,13 +9,22 @@ import (
 
 func readWorkout(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	rows, err := db.Query(`
 		SELECT w.id, w.name, w.date, p.name
 		FROM workouts w
-		LEFT JOIN programs p ON p.id = w.program_id
+		LEFT JOIN programs p 
+				ON p.id = w.program_id
+				AND p.user_id = w.user_id 
 		WHERE w.deleted_at IS NULL
-		ORDER BY w.date DESC, w.id DESC
-	`)
+		AND w.user_id = $1
+		ORDER BY w.date DESC, w.id DESC`,
+	userID)
 
 	if err != nil {
 		log.Printf("Failed to fetch workouts: %v", err)

@@ -22,11 +22,21 @@ func deleteProgramExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// now you straight up jump into deletion
 	// if you get a database error because porgram does not exist then you send an error
-	result, err := db.Exec(
-		`DELETE FROM program_exercises
-		WHERE program.ID = $1`,
+	result, err := db.Exec(`
+		DELETE FROM program_exercises pe
+		USING programs p
+		WHERE pe.program_id = p.id
+		AND p.user_id = $1
+		AND pe.id = $2`,
+		userID,
 		id,
 	)
 
@@ -45,7 +55,7 @@ func deleteProgramExercise(w http.ResponseWriter, r *http.Request) {
 
 	// If not matching program not existed
 	if rowsAffected == 0 {
-		writeJSONError(w, "Program not found", http.StatusNotFound)
+		writeJSONError(w, "Program exercise not found", http.StatusNotFound)
 		return
 
 	}

@@ -14,12 +14,12 @@ func main() {
 		port = "8080"
 	}
 
-	http.HandleFunc("/workouts", handlerWorkout)
-	http.HandleFunc("/exercises", handlerExercise)
-	http.HandleFunc("/programs", handlerProgram)
-	http.HandleFunc("/workout-exercises", handlerWorkoutExercise)
-	http.HandleFunc("/program-exercises", handlerProgramExercise)
-	http.HandleFunc("/exercise-sets", handlerExerciseSet)
+	http.Handle("/workouts", authMiddleware(http.HandlerFunc(handlerWorkout)))
+	http.Handle("/exercises", authMiddleware(http.HandlerFunc(handlerExercise)))
+	http.Handle("/programs", authMiddleware(http.HandlerFunc(handlerExercise)))
+	http.Handle("/workout-exercises", authMiddleware(http.HandlerFunc(handlerExercise)))
+	http.Handle("/program-exercises", authMiddleware(http.HandlerFunc(handlerExercise)))
+	http.Handle("/exercise-sets", authMiddleware(http.HandlerFunc(handlerExercise)))
 
 	log.Println("Server running on port", port)
 	log.Fatal(http.ListenAndServe(":"+port, nil))

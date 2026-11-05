@@ -13,6 +13,12 @@ import (
 
 func createExercise(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Create Exercise var to store incoming exercise in
 	var exercise Exercise
 
@@ -43,10 +49,11 @@ func createExercise(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(
 		`INSERT 
 		INTO exercises
-		(name)
-		VALUES ($1)
+		(name, user_id)
+		VALUES ($1, $2)
 		RETURNING id`,
 		exercise.Name,
+		userID,
 	).Scan(&exercise.ID)
 
 	// id validation not needed since postgresql generates it for us.

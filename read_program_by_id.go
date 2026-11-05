@@ -19,6 +19,12 @@ func readProgramByID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// initialize empty program exercise response in the program response
 	var programResponse ProgramResponse
 
@@ -26,8 +32,10 @@ func readProgramByID(w http.ResponseWriter, r *http.Request) {
 		`SELECT programs.id, 
 				programs.name
 		FROM programs
-		WHERE programs.id = $1`,
+		WHERE programs.id = $1
+		and programs.user_id = $2`,
 		id,
+		userID,
 	).Scan(&programResponse.ID, &programResponse.Name)
 
 	if err != nil {

@@ -24,6 +24,11 @@ func readWorkoutbyID(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 	// Create a new variable called workout response which will store all the response items we retrieve
 	var workout WorkoutResponse
 
@@ -39,10 +44,13 @@ func readWorkoutbyID(w http.ResponseWriter, r *http.Request) {
 				programs.name
 		FROM workouts
 		LEFT JOIN programs 
-		ON programs.id = workouts.program_id
+			ON programs.id = workouts.program_id
+			AND workouts.user_id = programs.user_id
 		WHERE workouts.id = $1
-		AND workouts.deleted_at IS NULL`,
+		AND workouts.deleted_at IS NULL
+		AND workouts.user_id = $2`,
 		id,
+		userID,
 	).Scan(&workout.Name, &date, &workout.ProgramName)
 
 	// We check of no workout found error and database error (internal server error)

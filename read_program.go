@@ -8,10 +8,19 @@ import (
 
 func readProgram(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+
 	rows, err := db.Query(
 		`SELECT programs.id, 
 				programs.name
-		FROM programs`,
+		FROM programs
+		WHERE user_id = $1`,
+		userID,
 	)
 
 	if err != nil {

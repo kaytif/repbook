@@ -19,11 +19,18 @@ func deleteExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// delete exercise
 	result, err := db.Exec(`
         DELETE FROM exercises
         WHERE id = $1
-    `, id)
+		AND user_id = $2 
+    `, id, userID)
 
 	if err != nil {
 		writeJSONError(w, "Cannot delete exercise because it may be referenced by existing records", http.StatusConflict)

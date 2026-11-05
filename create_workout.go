@@ -12,6 +12,12 @@ import (
 
 func createWorkout(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// create an empty workout
 	var newWorkout Workout
 
@@ -65,12 +71,14 @@ func createWorkout(w http.ResponseWriter, r *http.Request) {
 		INTO workouts 
 		(name, 
 		workout_date, 
-		program_id) 
-		VALUES ($1, $2, $3) 
+		program_id,
+		user_id) 
+		VALUES ($1, $2, $3, $4) 
 		RETURNING id`,
 		newWorkout.Name,
 		newWorkout.Date,
 		newWorkout.ProgramID,
+		userID,
 	).Scan(&newWorkout.ID)
 
 	// catch error when program id does not exist

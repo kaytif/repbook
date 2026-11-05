@@ -1,15 +1,24 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/jackc/pgx/v5/pgconn"
 	"log"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func createProgramExercise(w http.ResponseWriter, r *http.Request) {
+
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	var programExercise ProgramExercise
 
 	// decode
@@ -41,13 +50,18 @@ func createProgramExercise(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(
 		`INSERT 
 		INTO program_exercises
-		(program_id, 
-		exercise_id)
-		VALUES ($1, $2) 
+		(program_id, exercise_id)
+		SELECT p.id, e.id
+		FROM programs p
+		CROSS JOIN exercises e
+		WHERE p.id = $1
+		AND e.id = $2
+		AND p.user_id = $3
+		AND e.user_id = $3
 		RETURNING id`,
 		programExercise.ProgramID,
 		programExercise.ExerciseID,
-	).Scan(&programExercise.ID)
+		userID).Scan(&programExercise.ID)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -71,6 +85,15 @@ func createProgramExercise(w http.ResponseWriter, r *http.Request) {
 				writeJSONError(w, "Exercise already exists in this program", http.StatusConflict)
 				return
 			}
+		}
+
+		if errors.Is(err, sql.ErrNoRows) {
+			writeJSONError(
+				w,
+				"Program or exercise not found",
+					http.StatusNotFound,
+			)
+			return
 		}
 
 		log.Println("Database insert error:", err)

@@ -13,6 +13,12 @@ import (
 
 func createProgram(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Create Program var to store incoming program in
 	var program Program
 
@@ -43,10 +49,11 @@ func createProgram(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(
 		`INSERT 
 		INTO programs
-		(name)
-		VALUES ($1)
+		(name, user_id)
+		VALUES ($1, $2)
 		RETURNING id`,
 		program.Name,
+		userID,
 	).Scan(&program.ID)
 
 	// id validation not needed since postgresql generates it for us.

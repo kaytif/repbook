@@ -13,6 +13,12 @@ import (
 
 func createExerciseSet(w http.ResponseWriter, r *http.Request) {
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// create an empty workout
 	var exerciseSet ExerciseSet
 
@@ -61,8 +67,9 @@ func createExerciseSet(w http.ResponseWriter, r *http.Request) {
 	SELECT id
 	FROM workout_exercises
 	WHERE id = $1
+	AND user_id = $2
 	FOR UPDATE`,
-		exerciseSet.WorkoutExerciseID).Scan(&id)
+		exerciseSet.WorkoutExerciseID, userID).Scan(&id)
 
 	if errors.Is(err, sql.ErrNoRows) {
 		writeJSONError(w, "Workout exercise not found", 404)

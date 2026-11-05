@@ -7,11 +7,20 @@ import (
 )
 
 func readExercise(w http.ResponseWriter, r *http.Request) {
+	
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 
 	rows, err := db.Query(
 		`SELECT exercises.id, 
 				exercises.name
-		FROM exercises`,
+		FROM exercises
+		WHERE exercises.user_id = $1`,
+		userID,
 	)
 
 	if err != nil {

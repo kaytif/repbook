@@ -47,6 +47,13 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get the verified user ID
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// ----- Decoding the input ------
 
 	// if all the id checks pass, then create a struct and decode the id into the struct
@@ -62,8 +69,9 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 
 	// now we check that the workout actually exists based on the workout id
 	err = db.QueryRow(
-		`SELECT id FROM workouts WHERE id = $1 and deleted_at IS NULL`,
+		`SELECT id FROM workouts WHERE id = $1 and deleted_at IS NULL AND user_id = $2`,
 		id,
+		userID,
 	).Scan(&workout.ID)
 
 	if errors.Is(err, sql.ErrNoRows) {
@@ -116,8 +124,10 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 		err = db.QueryRow(
 			`SELECT programs.id
 			FROM programs
-			where id = $1`,
+			where id = $1
+			AND programs.user_id = $2`,
 			*workout.ProgramID,
+			userID,
 		).Scan(&programID)
 
 		// give error if no program with this id even exists
@@ -138,14 +148,15 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 	result, err := db.Exec(
 		`UPDATE workouts 
 		SET name = $1,
-			workout_date = $2,
+			date = $2,
 			program_id = $3,
 			updated_at = NOW()
-		WHERE id = $4 AND deleted_at IS NULL`,
+		WHERE id = $4 AND deleted_at IS NULL AND workouts.user_ID = $5`,
 		workout.Name,
 		workout.Date,
 		workout.ProgramID,
 		id,
+		userID,
 	)
 
 	if err != nil {

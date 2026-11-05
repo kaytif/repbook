@@ -22,11 +22,23 @@ func deleteExerciseSet(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
+
 	// now you straight up jump into deletion
 	// if you get a database error because porgram does not exist then you send an error
 	result, err := db.Exec(
-		`DELETE FROM exercise_sets
-		WHERE id = $1`,
+		`DELETE FROM exercise_sets es
+		USING workout_exercises we
+		JOIN workouts w ON w.id = we.workout_id
+		WHERE es.workout_exercise_id = we.id
+		AND w.user_id = $1
+		AND es.id = $2`,
+		userID,
 		id,
 	)
 

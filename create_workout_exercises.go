@@ -1,16 +1,25 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
-	"github.com/jackc/pgx/v5/pgconn"
 	"log"
 	"net/http"
+
+	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"github.com/jackc/pgx/v5/pgconn"
 )
 
 func createWorkoutExercise(w http.ResponseWriter, r *http.Request) {
 	var workoutExercise WorkoutExercise
+
+	// get the verified user ID
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
 
 	// decode
 	err := json.NewDecoder(r.Body).Decode(&workoutExercise)
@@ -41,13 +50,19 @@ func createWorkoutExercise(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(
 		`INSERT 
 		INTO workout_exercises
-		(workout_id, 
-		exercise_id)
-		VALUES ($1, $2) 
+		(workout_id, exercise_id)
+		SELECT w.id, e.id
+		FROM workouts w
+		CROSS JOIN exercises e
+		WHERE w.id = $1
+		AND e.id = $2
+		AND w.user_id = $3
+		AND e.user_id = $3
+		AND w.deleted_at is NULL
 		RETURNING id`,
 		workoutExercise.WorkoutID,
 		workoutExercise.ExerciseID,
-	).Scan(&workoutExercise.ID)
+		userID).Scan(&workoutExercise.ID)
 
 	if err != nil {
 		var pgErr *pgconn.PgError
@@ -67,6 +82,11 @@ func createWorkoutExercise(w http.ResponseWriter, r *http.Request) {
 				}
 			}
 
+		}
+
+		if errors.Is(err, sql.ErrNoRows) {
+			writeJSONError(w, "Workout or exercise not found", http.StatusNotFound)
+			return
 		}
 
 		log.Println("Database insert error:", err)

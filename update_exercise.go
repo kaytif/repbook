@@ -26,6 +26,13 @@ func updateExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get the verified user ID
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Create an empty exercise
 	var exercise Exercise
 
@@ -60,9 +67,10 @@ func updateExercise(w http.ResponseWriter, r *http.Request) {
 	// PostgreSQL does it for you, here we show the error if PostgreSQL gives us an error
 	// Note that you can only update the new exercise name and not id because id is already assigned itself by SQL
 	result, err := db.Exec(
-		`UPDATE exercises SET name = $1 WHERE id = $2`,
+		`UPDATE exercises SET name = $1 WHERE id = $2 AND user_id = $3`,
 		exercise.Name,
 		id,
+		userID,
 	)
 
 	if err != nil {

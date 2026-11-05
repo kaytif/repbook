@@ -22,11 +22,22 @@ func deleteWorkoutExercise(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// delete workout exercise
 	result, err := db.Exec(`
-        DELETE FROM workout_exercises
-        WHERE id = $1
-    `, id)
+		DELETE FROM workout_exercises we
+		USING workouts w
+		WHERE we.workout_id = w.id
+		AND w.user_id = $1
+		AND we.id = $2`,
+		userID,
+		id,
+	)
 
 	if err != nil {
 		var pgErr *pgconn.PgError

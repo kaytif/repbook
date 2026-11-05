@@ -26,6 +26,13 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// get the verified user ID
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// Create an empty program
 	var program Program
 
@@ -59,9 +66,10 @@ func updateProgram(w http.ResponseWriter, r *http.Request) {
 	// PostgreSQL does it for you, here we show the error if PostgreSQL gives us an error
 	// Note that you can only update the new program name and not id because id is already assigned itself by SQL
 	result, err := db.Exec(
-		`UPDATE programs SET name = $1 WHERE id = $2`,
+		`UPDATE programs SET name = $1 WHERE id = $2 AND user_id = $3`,
 		program.Name,
 		id,
+		userID,
 	)
 
 	if err != nil {

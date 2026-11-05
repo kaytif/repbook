@@ -69,3 +69,26 @@ type ExerciseSet struct {
 	Reps              *int     `json:"reps"`
 	Weight            *float64 `json:"weight"`
 }
+
+type User struct {
+	ID           int    `json:"id"`
+	Username     string `json:"username"`
+	PasswordHash string `json:"-"` // Never send hash in JSON responses
+}
+
+type Login struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type Session struct {
+	UserID    int       `json:"user_id"`
+	TokenHash     string    `json:"token"`
+	ExpiresAt time.Time `json:"expires_at"`
+	CreatedAt time.Time `json:"created_at"`
+}
+
+type RegisterRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}

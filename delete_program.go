@@ -22,12 +22,21 @@ func deleteProgram(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// now you straight up jump into deletion
 	// if you get a database error because porgram does not exist then you send an error
 	result, err := db.Exec(
 		`DELETE FROM programs
-		WHERE program.ID = $1`,
+		WHERE id = $1
+		AND user_id = $2
+		`,
 		id,
+		userID,
 	)
 
 	if err != nil {

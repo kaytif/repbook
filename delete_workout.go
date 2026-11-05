@@ -38,13 +38,21 @@ func deleteWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	userID, ok := getUserID(r)
+	if !ok {
+		writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+		return
+	}
+
 	// DELETE transaction from PostgreSQL
 	result, err := db.Exec(
 		`UPDATE workouts
 		'SET deleted_at = NOW()
 		WHERE id = $1 
-		AND deleted_at is NULL`,
+		AND deleted_at is NULL
+		AND user_id = $2`,
 		id,
+		userID,
 	)
 
 	if err != nil {
