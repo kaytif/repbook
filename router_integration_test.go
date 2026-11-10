@@ -160,4 +160,3 @@ func TestRouterIntegration(t *testing.T) {
 	request(alice, "GET", fmt.Sprintf("/workouts?id=%d", workout.ID), nil, 404, nil)
 	request(alice, "DELETE", fmt.Sprintf("/exercises?id=%d", exercise.ID), nil, 204, nil)
 }
-
