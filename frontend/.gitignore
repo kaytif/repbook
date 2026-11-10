@@ -10,7 +10,7 @@ lerna-debug.log*
 node_modules
 test-results/
 playwright-report/
-dist
+# Keep production assets available for native Go builds (embedded in the binary).
 dist-ssr
 *.local
 

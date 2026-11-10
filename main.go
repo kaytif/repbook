@@ -1,10 +1,15 @@
 package main
 
 import (
+	"embed"
+	"io/fs"
 	"log"
 	"net/http"
 	"os"
 )
+
+//go:embed frontend/dist
+var frontendFiles embed.FS
 
 func main() {
 	connectDB()
@@ -34,6 +39,10 @@ func newRouter() http.Handler {
 	for _, path := range []string{"/login", "/register", "/workouts", "/exercises", "/programs", "/workout-exercises", "/program-exercises", "/exercise-sets"} {
 		server.Handle(path, mux)
 	}
-	server.Handle("/", http.FileServer(http.Dir("frontend/dist")))
+	assets, err := fs.Sub(frontendFiles, "frontend/dist")
+	if err != nil {
+		panic(err)
+	}
+	server.Handle("/", http.FileServer(http.FS(assets)))
 	return server
 }

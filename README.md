@@ -51,3 +51,5 @@ Set `DATABASE_URL` in the ignored root `.env` file to use an external PostgreSQL
 ## Render
 
 Deploy this repository as a Docker web service using `dockerfile`. Set `DATABASE_URL` in the service Environment settings. The image builds the React frontend and serves it with the Go API, so open the service root URL to use the app.
+
+The production frontend in `frontend/dist` is checked in and embedded in the Go executable, so native Go deployments also serve the website without a separate frontend server. After editing frontend source, run `npm.cmd --prefix frontend run build` and commit the updated assets. Docker rebuilds the assets automatically.
