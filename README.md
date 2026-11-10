@@ -43,3 +43,7 @@ npm.cmd run test:e2e
 ```
 
 The PostgreSQL integration test creates and removes an isolated schema; it does not use existing application tables. Browser tests use the running local backend and create separate test accounts. They cover desktop and mobile layouts using installed Microsoft Edge; adjust `channel` in `frontend/playwright.config.ts` for another installed Chromium browser. Playwright starts a temporary Vite server if port 5173 is free. Screenshots and failure traces go to the ignored `frontend/test-results` directory.
+
+## External database
+
+Set `DATABASE_URL` in the ignored root `.env` file to use an external PostgreSQL database such as Neon. Docker Compose reads it automatically. Run `docker compose up -d app` after changing it. Without that setting, the app uses local PostgreSQL. Initialize an empty external database with `migrations/001_initial_schema.up.sql` before first use. Existing local accounts and workouts remain in the local database and are not copied automatically.
