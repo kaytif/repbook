@@ -16,7 +16,7 @@ func readWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := db.Query(`
-		SELECT w.id, w.name, w.date, p.name
+		SELECT w.id, w.name, w.date, p.name, w.program_id
 		FROM workouts w
 		LEFT JOIN programs p 
 				ON p.id = w.program_id
@@ -44,6 +44,7 @@ func readWorkout(w http.ResponseWriter, r *http.Request) {
 			&workout.Name,
 			&date,
 			&workout.ProgramName,
+			&workout.ProgramID,
 		)
 
 		if err != nil {

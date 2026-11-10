@@ -56,6 +56,8 @@ func handlerProgram(w http.ResponseWriter, r *http.Request) {
 	switch r.Method {
 	case http.MethodGet:
 		if r.URL.Query().Has("id") {
+			readProgramByID(w, r)
+		} else {
 			readProgram(w, r)
 		}
 	case http.MethodPost:

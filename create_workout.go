@@ -1,13 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"encoding/json"
 	"errors"
-	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"github.com/jackc/pgx/v5/pgconn"
 	"log"
 	"net/http"
-	"strings"
+	"time"
 )
 
 func createWorkout(w http.ResponseWriter, r *http.Request) {
@@ -29,16 +29,9 @@ func createWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ----------- name validation ----------------
-
-	// validate that name is not empty
-	err = validation.Validate(
-		strings.TrimSpace(newWorkout.Name),
-		validation.Required,
-	)
-	if err != nil {
-		writeJSONError(w, "Name not given", http.StatusBadRequest)
-		return
+	// Keep a date label for storage compatibility; users do not name workouts.
+	if newWorkout.Name == "" {
+		newWorkout.Name = newWorkout.Date
 	}
 
 	// ----------- date validation ----------------
@@ -49,6 +42,22 @@ func createWorkout(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if _, err := time.Parse("2006-01-02", newWorkout.Date); err != nil {
+		writeJSONError(w, "Invalid date format", http.StatusBadRequest)
+		return
+	}
+	if newWorkout.ProgramID != nil {
+		var programID int
+		err = db.QueryRowContext(r.Context(), "SELECT id FROM programs WHERE id = $1 AND user_id = $2", *newWorkout.ProgramID, userID).Scan(&programID)
+		if errors.Is(err, sql.ErrNoRows) {
+			writeJSONError(w, "Program not found", http.StatusNotFound)
+			return
+		}
+		if err != nil {
+			writeJSONError(w, "Internal server error", http.StatusInternalServerError)
+			return
+		}
+	}
 	// Parse the date
 	// workoutDate, err := time.Parse("2006-01-02", newWorkout.Date)
 	// if err != nil {
@@ -70,7 +79,7 @@ func createWorkout(w http.ResponseWriter, r *http.Request) {
 		`INSERT 
 		INTO workouts 
 		(name, 
-		workout_date, 
+		date,
 		program_id,
 		user_id) 
 		VALUES ($1, $2, $3, $4) 

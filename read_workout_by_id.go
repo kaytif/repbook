@@ -16,7 +16,7 @@ import (
 func readWorkoutbyID(w http.ResponseWriter, r *http.Request) {
 
 	// Find ID from the URL request, convert from string to integer
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 
 	// Validate ID since it is now converted to integer
 	if err != nil || id <= 0 {
@@ -41,7 +41,8 @@ func readWorkoutbyID(w http.ResponseWriter, r *http.Request) {
 	err = db.QueryRow(
 		`SELECT workouts.name,
 				workouts.date,
-				programs.name
+				programs.name,
+				workouts.program_id
 		FROM workouts
 		LEFT JOIN programs 
 			ON programs.id = workouts.program_id
@@ -51,7 +52,7 @@ func readWorkoutbyID(w http.ResponseWriter, r *http.Request) {
 		AND workouts.user_id = $2`,
 		id,
 		userID,
-	).Scan(&workout.Name, &date, &workout.ProgramName)
+	).Scan(&workout.Name, &date, &workout.ProgramName, &workout.ProgramID)
 
 	// We check of no workout found error and database error (internal server error)
 	if err != nil {

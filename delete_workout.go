@@ -47,7 +47,7 @@ func deleteWorkout(w http.ResponseWriter, r *http.Request) {
 	// DELETE transaction from PostgreSQL
 	result, err := db.Exec(
 		`UPDATE workouts
-		'SET deleted_at = NOW()
+		SET deleted_at = NOW()
 		WHERE id = $1 
 		AND deleted_at is NULL
 		AND user_id = $2`,

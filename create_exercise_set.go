@@ -45,7 +45,7 @@ func createExerciseSet(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Validate weight
-	err = validation.Validate(exerciseSet.Weight, validation.Min(0))
+	err = validation.Validate(exerciseSet.Weight, validation.Min(0.0))
 	if err != nil {
 		writeJSONError(w, "Invalid Weight", http.StatusBadRequest)
 		return
@@ -64,11 +64,13 @@ func createExerciseSet(w http.ResponseWriter, r *http.Request) {
 
 	var id int
 	err = tx.QueryRow(`
-	SELECT id
-	FROM workout_exercises
-	WHERE id = $1
-	AND user_id = $2
-	FOR UPDATE`,
+	SELECT we.id
+	FROM workout_exercises we
+	JOIN workouts w ON w.id = we.workout_id
+	WHERE we.id = $1
+	AND w.user_id = $2
+	AND w.deleted_at IS NULL
+	FOR UPDATE OF we`,
 		exerciseSet.WorkoutExerciseID, userID).Scan(&id)
 
 	if errors.Is(err, sql.ErrNoRows) {

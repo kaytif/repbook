@@ -44,6 +44,7 @@ type WorkoutExerciseResponse struct {
 }
 
 type WorkoutResponse struct {
+	ProgramID   *int                      `json:"program_id"`
 	ID          int                       `json:"id"`
 	Name        string                    `json:"name"`
 	Date        string                    `json:"date"`
@@ -52,6 +53,7 @@ type WorkoutResponse struct {
 }
 
 type ProgramExerciseResponse struct {
+	ID         int    `json:"id"`
 	ExerciseID int    `json:"exercise_id"`
 	Name       string `json:"name"`
 }

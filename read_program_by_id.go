@@ -11,7 +11,7 @@ import (
 
 func readProgramByID(w http.ResponseWriter, r *http.Request) {
 	// Find ID from the URL request, convert from string to integer
-	id, err := strconv.Atoi(r.PathValue("id"))
+	id, err := strconv.Atoi(r.URL.Query().Get("id"))
 
 	// Validate ID since it is now converted to integer
 	if err != nil || id <= 0 {
@@ -50,7 +50,7 @@ func readProgramByID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	rows, err := db.Query(
-		`SELECT exercises.id, exercises.name
+		`SELECT program_exercises.id, exercises.id, exercises.name
 		FROM exercises
 		JOIN program_exercises on
 			program_exercises.exercise_id = exercises.id
@@ -74,6 +74,7 @@ func readProgramByID(w http.ResponseWriter, r *http.Request) {
 		var programExercise ProgramExerciseResponse
 
 		err := rows.Scan(
+			&programExercise.ID,
 			&programExercise.ExerciseID,
 			&programExercise.Name,
 		)

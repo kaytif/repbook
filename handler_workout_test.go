@@ -17,13 +17,9 @@ func TestCreateWorkout_Validation(t *testing.T) {
 
 		{"missing required fields", createWorkout, "POST", "/workouts", `{}`, 400},
 
-		{"empty workout name", createWorkout, "POST", "/workouts", `{"name":"","date":"2026-10-30"}`, 400},
-
 		{"malformed JSON", createWorkout, "POST", "/workouts", `{"name":`, 400},
 
 		{"wrong data type", createWorkout, "POST", "/workouts", `{"name":123, "date":"2026-10-30"}`, 400},
-
-		{"whitespace name only", createWorkout, "POST", "/workouts", `{"name": "  ", "date":"2026-10-30"}`, 400},
 	}
 
 	for _, tt := range tests {

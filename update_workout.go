@@ -4,10 +4,10 @@ import (
 	"database/sql"
 	"encoding/json"
 	"errors"
+	validation "github.com/go-ozzo/ozzo-validation/v4"
 	"net/http"
 	"strconv"
-
-	validation "github.com/go-ozzo/ozzo-validation/v4"
+	"time"
 )
 
 func updateWorkout(w http.ResponseWriter, r *http.Request) {
@@ -85,13 +85,9 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ------ Checking the updated workout like we would a new workout entry ---
-	// ----------- name validation ----------------
-
-	// validate that name is not empty
-	err = validation.Validate(workout.Name, validation.Required)
-	if err != nil {
-		writeJSONError(w, "Name not given", http.StatusBadRequest)
-		return
+	// Keep a date label for storage compatibility; users do not name workouts.
+	if workout.Name == "" {
+		workout.Name = workout.Date
 	}
 
 	// ----------- date validation ----------------
@@ -99,6 +95,10 @@ func updateWorkout(w http.ResponseWriter, r *http.Request) {
 	// make sure it is not empty
 	if workout.Date == "" {
 		writeJSONError(w, "Workout date is required", http.StatusBadRequest)
+		return
+	}
+	if _, err := time.Parse("2006-01-02", workout.Date); err != nil {
+		writeJSONError(w, "Invalid date format", http.StatusBadRequest)
 		return
 	}
 

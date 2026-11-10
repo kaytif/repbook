@@ -1,11 +1,10 @@
 // Centralize API paths: adjust these to match the routes in your Go router.
 export const routes = {
-  login: '/api/login', register: '/api/register', logout: '/api/logout',
+  login: '/api/login', register: '/api/register',
   workouts: '/api/workouts', exercises: '/api/exercises', programs: '/api/programs',
   program: (id: number) => `/api/programs?id=${id}`,
   programExercises: '/api/program-exercises',
   programExercise: (id: number) => `/api/program-exercises?id=${id}`,
-  workoutProgram: '/api/workout-program',
   workout: (id: number) => `/api/workouts?id=${id}`,
   workoutExercises: '/api/workout-exercises',
   workoutExercise: (id: number) => `/api/workout-exercises?id=${id}`,
@@ -22,7 +21,8 @@ export type WorkoutExercise = { id: number; exercise_id: number; name: string; s
 export type WorkoutDetail = Workout & { program_name?: string | null; exercises: WorkoutExercise[] };
 
 export class ApiError extends Error {
-  constructor(public status: number, message: string) { super(message); this.name = 'ApiError'; }
+  status: number;
+  constructor(status: number, message: string) { super(message); this.status = status; this.name = 'ApiError'; }
 }
 
 // JSON helper: sends the session cookie and converts non-2xx responses into errors.

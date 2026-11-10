@@ -4,7 +4,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      DATABASE_URL: postgres://workout:devpassword@db:5432/workoutdb?sslmode=disable
+      DATABASE_URL: postgres://workout:devpassword@db:5432/workout_tracker?sslmode=disable
     depends_on:
       db:
         condition: service_healthy
@@ -14,15 +14,16 @@ services:
     environment:
       POSTGRES_USER: workout
       POSTGRES_PASSWORD: devpassword
-      POSTGRES_DB: workoutdb
+      POSTGRES_DB: workout_tracker
     ports:
       - "127.0.0.1:5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d:ro
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U workout -d workoutdb"]
+      test: ["CMD-SHELL", "pg_isready -U workout -d workout_tracker"]
       interval: 5s
       retries: 5
 
 volumes:
-  postgres_data: 
+  postgres_data:
