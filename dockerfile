@@ -1,3 +1,10 @@
+FROM node:24-alpine AS frontend
+WORKDIR /frontend
+COPY frontend/package*.json ./
+RUN npm ci
+COPY frontend/ ./
+RUN npm run build
+
 FROM golang:1.26-alpine AS builder
 
 WORKDIR /app
@@ -14,6 +21,7 @@ FROM alpine:3.22
 WORKDIR /app
 
 COPY --from=builder /workout-tracker .
+COPY --from=frontend /frontend/dist ./frontend/dist
 
 EXPOSE 8080 
 

@@ -28,5 +28,12 @@ func newRouter() http.Handler {
 	mux.Handle("/workout-exercises", authMiddleware(http.HandlerFunc(handlerWorkoutExercise)))
 	mux.Handle("/program-exercises", authMiddleware(http.HandlerFunc(handlerProgramExercise)))
 	mux.Handle("/exercise-sets", authMiddleware(http.HandlerFunc(handlerExerciseSet)))
-	return mux
+	server := http.NewServeMux()
+	server.Handle("/api/", http.StripPrefix("/api", mux))
+	// Preserve existing API URLs for clients and the local Vite proxy.
+	for _, path := range []string{"/login", "/register", "/workouts", "/exercises", "/programs", "/workout-exercises", "/program-exercises", "/exercise-sets"} {
+		server.Handle(path, mux)
+	}
+	server.Handle("/", http.FileServer(http.Dir("frontend/dist")))
+	return server
 }

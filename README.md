@@ -15,7 +15,7 @@ npm.cmd run dev
 
 Open the Vite URL (normally http://localhost:5173) and create an account. PostgreSQL initializes the checked-in schema automatically on a new Docker volume. The rebuilt app uses the `workout_tracker` database. A pre-existing volume needs that database created and the initial migration applied once; do not apply the initial migration to an already initialized database.
 
-The frontend proxies `/api` to Go on port 8080, including session cookies. The same proxy works with `npm.cmd run preview` after a build. The Go container serves the API; run Vite separately for the frontend.
+The frontend proxies `/api` to Go on port 8080, including session cookies. The same proxy works with `npm.cmd run preview` after a build. The Docker image builds and serves the frontend at `/` and the API under `/api/` on the same port. Vite remains available for local frontend development.
 
 ## Using the app
 
@@ -47,3 +47,7 @@ The PostgreSQL integration test creates and removes an isolated schema; it does 
 ## External database
 
 Set `DATABASE_URL` in the ignored root `.env` file to use an external PostgreSQL database such as Neon. Docker Compose reads it automatically. Run `docker compose up -d app` after changing it. Without that setting, the app uses local PostgreSQL. Initialize an empty external database with `migrations/001_initial_schema.up.sql` before first use. Existing local accounts and workouts remain in the local database and are not copied automatically.
+
+## Render
+
+Deploy this repository as a Docker web service using `dockerfile`. Set `DATABASE_URL` in the service Environment settings. The image builds the React frontend and serves it with the Go API, so open the service root URL to use the app.
